@@ -63,6 +63,8 @@ $user->getSumVisitors();
 
 // Get detailed visitor information
 $user->visitors;
+// or
+$user->getVisitors();
 ```
 
 ## License
