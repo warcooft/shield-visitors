@@ -2,6 +2,7 @@
 
 namespace Aselsan\Visitors\Traits;
 
+use Aselsan\Visitors\Config\Visitors;
 use Aselsan\Visitors\Models\VisitorModel;
 
 trait HasVisitors
@@ -20,9 +21,9 @@ trait HasVisitors
     /**
      * Include visitors to the result.
      */
-    public function withVisitors(): static
+    public function withVisitors(?bool $include = true): static
     {
-        $this->includeVisitors = true;
+        $this->includeVisitors = $include;
 
         return $this;
     }
@@ -32,7 +33,7 @@ trait HasVisitors
      */
     protected function findVisitors(array $eventData): array
     {
-        if (! $this->includeVisitors || empty($eventData['data'])) {
+        if (!$this->includeVisitors || empty($eventData['data'])) {
             return $eventData;
         }
 
@@ -40,9 +41,20 @@ trait HasVisitors
 
         if ($eventData['singleton']) {
             if ($this->tempReturnType === 'array') {
-                $eventData['data']['visitors'] = $this->find($model->getById($eventData['data'][$this->primaryKey]));
+                $visitors = $model->getById($eventData['data'][$this->primaryKey]);
+
+                if ($visitors !== []) {
+                    $eventData['data']['visitors'] = $this->find($visitors);
+                } else {
+                    $eventData['data']['visitors'] = [];
+                }
             } else {
-                $eventData['data']->visitors = $this->find($model->getById($eventData['data']->{$this->primaryKey}));
+                $visitors = $model->getById($eventData['data']->{$this->primaryKey});
+                if ($visitors !== []) {
+                    $eventData['data']->visitors = $this->find($visitors);
+                } else {
+                    $eventData['data']->visitors = [];
+                }
             }
         } else {
             $user_ids = array_map('intval', array_column($eventData['data'], $this->primaryKey));

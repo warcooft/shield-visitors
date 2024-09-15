@@ -28,7 +28,7 @@ trait Visitable
     public function getSumVisitor(): ?int
     {
         if (! array_key_exists('visitors', $this->attributes)) {
-            return null;
+            return 0;
         }
 
         return count($this->attributes['visitors']);
