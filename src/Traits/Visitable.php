@@ -49,7 +49,6 @@ trait Visitable
         // Get the URI of the current Request
         $uri = current_url(true);
 
-        dd($uri);
         // Create a new visit record
         $model->save([
             'user_id' => $this->id,
