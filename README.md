@@ -1,5 +1,5 @@
 # Profile Visitor Tracking System for CodeIgniter Shield
-A lightweight visitor tracking system for CodeIgniter Shield, designed to monitor user profile visits similar to LinkedIn’s profile visitor feature.
+A lightweight profile visitor tracking system for CodeIgniter Shield, designed to monitor user profile visits similar to LinkedIn’s profile viewers feature.
 
 # Install
 Install easily via Composer to take advantage of CodeIgniter 4's autoloading capabilities and always be up-to-date:
