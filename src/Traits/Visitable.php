@@ -46,10 +46,23 @@ trait Visitable
             return;
         }
 
+        // Get the URI of the current Request
+        $uri = current_url(true);
+
+        dd($uri);
         // Create a new visit record
         $model->save([
             'user_id' => $this->id,
             'visitor_id' => user_id() ?? null,
+            'scheme'     => $uri->getScheme(),
+            'host'       => $uri->getHost(),
+            'port'       => $uri->getPort() ?? '',
+            'user'       => $uri->showPassword(false)->getUserInfo() ?? '',
+            'path'       => $uri->getPath(),
+            'query'      => $uri->getQuery(),
+            'fragment'   => $uri->getFragment(),
+            'user_agent' => $this->request->getServer('HTTP_USER_AGENT') ?? '',
+            'ip_address' => $this->request->getServer('REMOTE_ADDR'),
         ]);
     }
 }
