@@ -33,8 +33,8 @@ class VisitorModel extends Model
     protected $validationRules = [
         'user_id'    => 'required',
         'visitor_id' => 'required',
-        // 'host'       => 'required',
-        // 'path'       => 'required',
+        'host'       => 'required',
+        'path'       => 'required',
     ];
 
     /**
@@ -90,11 +90,10 @@ class VisitorModel extends Model
             return [];
         }
 
-
         $visitorMaster = [];
 
-        foreach ($visitorIds as $tag) {
-            $visitorMaster[$tag['user_id']][] = $tag['visitor_id'];
+        foreach ($visitorIds as $vst) {
+            $visitorMaster[$vst['user_id']][] = $vst['visitor_id'];
         }
 
         $visitorIds = array_map('intval', array_unique(array_column($visitorIds, 'visitor_id')));

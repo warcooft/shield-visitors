@@ -13,10 +13,8 @@ trait HasVisitors
      */
     protected function initVisitors(): void
     {
-        $this->afterFind[]     = 'trackVisitorsAfterFind';
+        $this->afterFind[]     = 'findVisitors';
         $this->allowedFields[] = 'visitors';
-
-        helper('inflector');
     }
 
     /**
@@ -32,7 +30,7 @@ trait HasVisitors
     /**
      * After find event.
      */
-    protected function trackVisitorsAfterFind(array $eventData): array
+    protected function findVisitors(array $eventData): array
     {
         if (! $this->includeVisitors || empty($eventData['data'])) {
             return $eventData;

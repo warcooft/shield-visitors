@@ -42,7 +42,6 @@ trait Visitable
             // Increment view count and update
             $similar->views++;
             $model->save($similar);
-
             return;
         }
 
