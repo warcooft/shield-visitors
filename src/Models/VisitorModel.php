@@ -2,6 +2,7 @@
 
 namespace Aselsan\Visitors\Models;
 
+use App\Models\UserModel;
 use Aselsan\Visitors\Config\Visitors;
 use Aselsan\Visitors\Entities\Visitor;
 use CodeIgniter\HTTP\IncomingRequest;
@@ -33,63 +34,86 @@ class VisitorModel extends Model
     protected $validationRules = [
         'user_id'    => 'required',
         'visitor_id' => 'required',
-        'host'       => 'required',
-        'path'       => 'required',
+        // 'host'       => 'required',
+        // 'path'       => 'required',
     ];
-
-    /**
-     * Parses the current URL and adds relevant
-     * Request info to create an Visit.
-     */
-    public function makeFromRequest(IncomingRequest $request): Visitor
-    {
-        // Get the URI of the current Request
-        $uri = current_url(true, $request);
-
-        /**
-         * Only try to identify a current user if the appropriate helper is defined
-         *
-         * @see https://codeigniter4.github.io/CodeIgniter4/extending/authentication.html
-         */
-        $userId = function_exists('user_id') ? user_id() : null;
-
-        return new Visitor([
-            'user_id'    => $userId,
-            'visitor_id' => user_id(),
-            'scheme'     => $uri->getScheme(),
-            'host'       => $uri->getHost(),
-            'port'       => $uri->getPort() ?? '',
-            'user'       => $uri->showPassword(false)->getUserInfo() ?? '',
-            'path'       => $uri->getPath(),
-            'query'      => $uri->getQuery(),
-            'fragment'   => $uri->getFragment(),
-            'user_agent' => $request->getServer('HTTP_USER_AGENT') ?? '',
-            'ip_address' => $request->getServer('REMOTE_ADDR'),
-        ]);
-    }
 
     /**
      * Finds the first visit with similar characteristics
      * based on the configuration settings.
      */
-    public function findSimilar(Visitor $visit): ?Visitor
+    public function findSimilar($user_id): ?Visitor
     {
         $config   = config(Visitors::class);
-        $tracking = $visit->toRawArray()[$config->trackingMethod] ?? null;
-
-        // Required fields
-        if (empty($tracking) || empty($visit->host) || empty($visit->path)) {
-            return null;
-        }
 
         // Check for matching components within the configured period
         $since = Time::now()->subSeconds($config->resetAfter)->format('Y-m-d H:i:s');
 
-        return $this->where('host', $visit->host)
-            ->where('path', $visit->path)
-            ->where('query', (string) $visit->query)
-            ->where($config->trackingMethod, $tracking)
+        return $this->where('visitor_id', user_id())
+            ->where('user_id', $user_id)
             ->where('created_at >=', $since)
             ->first();
+    }
+
+    /**
+     * Get tags for one item.
+     */
+    public function getById(int $user_id): array
+    {
+        $visitorIds = $this->builder()
+            ->select('visitor_id')
+            ->where('user_id', $user_id)
+            ->get()
+            ->getResultArray();
+
+        if (empty($visitorIds)) {
+            return [];
+        }
+
+        $visitorIds = array_map('intval', array_column($visitorIds, 'visitor_id'));
+
+        return $visitorIds;
+    }
+
+    /**
+     * Get tags for many items.
+     */
+    public function getByIds(array $user_ids): array
+    {
+        $visitorIds = $this->builder()
+            ->select('visitor_id, user_id')
+            ->distinct()
+            ->whereIn('user_id', $user_ids)
+            ->get()
+            ->getResultArray();
+
+        if (empty($visitorIds)) {
+            return [];
+        }
+
+
+        $visitorMaster = [];
+
+        foreach ($visitorIds as $tag) {
+            $visitorMaster[$tag['user_id']][] = $tag['visitor_id'];
+        }
+
+        $visitorIds = array_map('intval', array_unique(array_column($visitorIds, 'visitor_id')));
+
+        $model = model(UserModel::class);
+        $visitors   = $model->find($visitorIds);
+        $visitors   = array_column($visitors, null, 'id');
+
+        $results = [];
+
+        foreach ($visitorMaster as $visit => $visitor_id) {
+            foreach ($visitor_id as $vid) {
+                if (isset($visitors[$vid])) {
+                    $results[$visit][] = $visitors[$vid];
+                }
+            }
+        }
+
+        return $results;
     }
 }

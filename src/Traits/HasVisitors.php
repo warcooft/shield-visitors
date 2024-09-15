@@ -3,15 +3,10 @@
 namespace Aselsan\Visitors\Traits;
 
 use Aselsan\Visitors\Models\VisitorModel;
-use Myth\Collection\Collection;
 
 trait HasVisitors
 {
     protected bool $includeVisitors = false;
-
-    protected Collection $scopeVisitors;
-    protected Collection $visitors;
-    protected string $visitorType;
 
     /**
      * Set up model events and initialize visitors related stuff.
@@ -22,10 +17,6 @@ trait HasVisitors
         $this->allowedFields[] = 'visitors';
 
         helper('inflector');
-
-        $this->scopeVisitors = new Collection([]);
-        $this->visitors      = new Collection([]);
-        $this->visitorType   = plural($this->table);
     }
 
     /**
@@ -47,23 +38,23 @@ trait HasVisitors
             return $eventData;
         }
 
-        $visitorModel = model(VisitorModel::class);
+        $model = model(VisitorModel::class);
 
         if ($eventData['singleton']) {
             if ($this->tempReturnType === 'array') {
-                $eventData['data']['visitors'] = new Collection($visitorModel->getById($eventData['data'][$this->primaryKey], $this->visitorType));
+                $eventData['data']['visitors'] = $this->find($model->getById($eventData['data'][$this->primaryKey]));
             } else {
-                $eventData['data']->visitors = new Collection($visitorModel->getById($eventData['data']->{$this->primaryKey}, $this->visitorType));
+                $eventData['data']->visitors = $this->find($model->getById($eventData['data']->{$this->primaryKey}));
             }
         } else {
-            $keys = array_map('intval', array_column($eventData['data'], $this->primaryKey));
-            $visitors = $visitorModel->getByIds($keys, $this->visitorType);
+            $user_ids = array_map('intval', array_column($eventData['data'], $this->primaryKey));
+            $visitors = $model->getByIds($user_ids);
 
             foreach ($eventData['data'] as &$data) {
                 if ($this->tempReturnType === 'array') {
-                    $data['visitors'] = new Collection($visitors[$data[$this->primaryKey]] ?? []);
+                    $data['visitors'] = $visitors[$data[$this->primaryKey]] ?? [];
                 } else {
-                    $data->visitors = new Collection($visitors[$data->{$this->primaryKey}] ?? []);
+                    $data->visitors = $visitors[$data->{$this->primaryKey}] ?? [];
                 }
             }
         }
