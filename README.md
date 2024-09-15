@@ -43,17 +43,25 @@ class ExampleUser extends Entity
 ```
 
 # Usage
+### Visit a User
+To record a visit to a specific user's profile:
 ```php
 $users = auth()->getProvider();
 $user  = $users->find($id);
 
-//visit this user
+// Record a visit to this user
 $user->visit();
+```
+### Get a User with Visitor Information
+To retrieve a user along with their visitors:
+```php
+$users = auth()->getProvider();
+$user  = $users->withVisitors()->find($id);
 
-//get total visitors
+// Get total number of visitors
 $user->getSumVisitors();
 
-//get visitors details
+// Get detailed visitor information
 $user->visitors;
 ```
 
