@@ -9,10 +9,10 @@ class Visitor extends Entity
 {
     protected $dates = [
         'created_at',
-        'verified_at',
     ];
     protected $casts = [
         'user_id'    => '?int',
+        'visitor'    => '?int',
         'user_agent' => 'string',
         'scheme'     => 'string',
         'host'       => 'string',

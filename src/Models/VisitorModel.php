@@ -5,7 +5,6 @@ namespace Aselsan\Visitors\Models;
 use App\Models\UserModel;
 use Aselsan\Visitors\Config\Visitors;
 use Aselsan\Visitors\Entities\Visitor;
-use CodeIgniter\HTTP\IncomingRequest;
 use CodeIgniter\I18n\Time;
 use CodeIgniter\Model;
 
@@ -56,7 +55,7 @@ class VisitorModel extends Model
     }
 
     /**
-     * Get tags for one item.
+     * Get visitor for one user.
      */
     public function getById(int $user_id): array
     {
@@ -76,7 +75,7 @@ class VisitorModel extends Model
     }
 
     /**
-     * Get tags for many items.
+     * Get visitor for many user.
      */
     public function getByIds(array $user_ids): array
     {

@@ -47,7 +47,8 @@ trait Visitable
         }
 
         // Get the URI of the current Request
-        $uri = current_url(true);
+        $uri     = current_url(true);
+        $request = service('request');
 
         // Create a new visit record
         $model->save([
@@ -60,8 +61,8 @@ trait Visitable
             'path'       => $uri->getPath(),
             'query'      => $uri->getQuery(),
             'fragment'   => $uri->getFragment(),
-            'user_agent' => $this->request->getServer('HTTP_USER_AGENT') ?? '',
-            'ip_address' => $this->request->getServer('REMOTE_ADDR'),
+            'user_agent' => $request->getServer('HTTP_USER_AGENT') ?? '',
+            'ip_address' => $request->getServer('REMOTE_ADDR'),
         ]);
     }
 }
