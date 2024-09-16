@@ -61,6 +61,7 @@ class VisitorModel extends Model
     {
         $visitorIds = $this->builder()
             ->select('visitor_id')
+            ->distinct()
             ->where('user_id', $user_id)
             ->get()
             ->getResultArray();
@@ -83,8 +84,6 @@ class VisitorModel extends Model
             ->select('visitor_id, user_id')
             ->distinct()
             ->whereIn('user_id', $user_ids)
-            ->orderBy('updated_at', 'desc')
-            ->orderBy('views', 'desc')
             ->get()
             ->getResultArray();
 
