@@ -83,6 +83,8 @@ class VisitorModel extends Model
             ->select('visitor_id, user_id')
             ->distinct()
             ->whereIn('user_id', $user_ids)
+            ->orderBy('updated_at', 'desc')
+            ->orderBy('views', 'desc')
             ->get()
             ->getResultArray();
 
